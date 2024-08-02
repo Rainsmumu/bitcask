@@ -16,10 +16,12 @@ const (
 )
 
 type Options struct {
-	DirPath      string      // 数据库数据目录
-	DataFileSize int64       // 数据文件大小阈值
-	IndexType    IndexerType // 内存索引类型
-	SyncWrites   bool        // 每次是否以持久化写入数据
+	DirPath       string      // 数据库数据目录
+	DataFileSize  int64       // 数据文件大小阈值
+	IndexType     IndexerType // 内存索引类型
+	SyncWrites    bool        // 每次是否以持久化写入数据
+	BytesPerSync  uint        // 累计写到多少字节后进行持久化
+	MMapAtStartup bool        // 启动时是否使用 MMap 加载数据
 }
 
 // IteratorOptions 迭代器索引配置项
@@ -40,10 +42,12 @@ type WriteBatchOptions struct {
 }
 
 var DefaultOptions = Options{
-	DirPath:      os.TempDir(),
-	DataFileSize: 256 * 1024 * 1024, // 256MB
-	SyncWrites:   false,
-	IndexType:    BTree,
+	DirPath:       os.TempDir(),
+	DataFileSize:  256 * 1024 * 1024, // 256MB
+	SyncWrites:    false,
+	BytesPerSync:  0,
+	IndexType:     BTree,
+	MMapAtStartup: true,
 }
 
 var DefaultIteratorOptions = IteratorOptions{
