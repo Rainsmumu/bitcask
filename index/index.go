@@ -23,7 +23,7 @@ const (
 // Indexer 抽象索引接口，后续如果想要接入其他的数据结构，则直接实现这个接口即可
 type Indexer interface {
 	// Put 向索引中存储 key 对应的数据位置信息
-	Put(key []byte, pos *data.LogRecordPos) bool
+	Put(key []byte, pos *data.LogRecordPos) *data.LogRecordPos
 
 	// Get 根据 key 取出对应的索引位置信息
 	Get(key []byte) *data.LogRecordPos
@@ -36,6 +36,9 @@ type Indexer interface {
 
 	// Iterator 索引迭代器
 	Iterator(reverse bool) Iterator
+
+	// Close 关闭索引
+	Close() error
 }
 
 type Item struct {
@@ -48,16 +51,16 @@ func (ai *Item) Less(bi btree.Item) bool {
 }
 
 // NewIndexer 根据类型初始化索引
-func NewIndexer(typ IndexType) Indexer {
+func NewIndexer(typ IndexType, dirPath string, sync bool) Indexer {
 	switch typ {
 	case Btree:
 		return NewBTree()
 	case ART:
 		// todo
-		return nil
+		return NewART()
 	case BPTree:
 		// todo
-		return nil
+		return NewBPlusTree(dirPath, sync)
 	default:
 		panic("unsupported index type")
 	}
